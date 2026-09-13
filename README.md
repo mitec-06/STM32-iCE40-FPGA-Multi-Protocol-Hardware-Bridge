@@ -1,4 +1,4 @@
-# STM32/FGPA Embedded Projects
+# STM32/FPGA Embedded Projects
 
 ## Overview
 
