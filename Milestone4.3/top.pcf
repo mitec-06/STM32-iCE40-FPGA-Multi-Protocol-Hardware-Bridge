@@ -1,0 +1,8 @@
+set_io clk_line 28
+set_io clk 35
+set_io cs_line 27
+set_io mosi_line 26
+
+set_io led[0] 46
+set_io led[1] 44
+set_io led[2] 45

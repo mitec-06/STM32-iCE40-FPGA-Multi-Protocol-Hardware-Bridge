@@ -1,0 +1,6 @@
+set_io stm32_in 26
+set_io stm32_in2 45
+set_io stm32_in3 46
+set_io led_out[0] 39
+set_io led_out[1] 40
+set_io led_out[2] 41
