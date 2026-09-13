@@ -139,7 +139,6 @@ int main(void)
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     HAL_Delay(500);
     }
-    // continue tmw...
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
