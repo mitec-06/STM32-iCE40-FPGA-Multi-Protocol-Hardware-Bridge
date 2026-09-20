@@ -99,17 +99,19 @@ int main(void)
   LL_SPI_Enable(SPI1);
   /* USER CODE END 2 */
 
-  const uint8_t data = 0x01;
+  const uint8_t data = 0x02;
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_4);
     /* USER CODE END WHILE */
     while (!LL_SPI_IsActiveFlag_TXE(SPI1)){}
       LL_SPI_TransmitData8(SPI1, data);
     
-
+    while (!LL_SPI_IsActiveFlag_TXE(SPI1)){}
     while (LL_SPI_IsActiveFlag_BSY(SPI1)){}
+    LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_4);
     LL_mDelay(2000);
   }
   /* USER CODE END 3 */
@@ -192,7 +194,7 @@ static void MX_SPI1_Init(void)
   SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
   SPI_InitStruct.ClockPhase = LL_SPI_PHASE_1EDGE;
   SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV2;
+  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV256;
   SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
   SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
   SPI_InitStruct.CRCPoly = 10;

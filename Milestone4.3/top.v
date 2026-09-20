@@ -5,7 +5,7 @@ reg [2:0] cs_sync;
 reg [1:0] mosi_sync;
 reg[7:0] shift_reg;
 reg [3:0] bit_cnt;
-reg [2:0] color_store;
+reg [2:0] color_store = 3'b000;
 wire sclk_posedge;
 
 assign led[2] = ~color_store[2];
@@ -27,10 +27,9 @@ always @(posedge clk) begin
     else if (sclk_posedge) begin
      shift_reg <= {shift_reg[6:0], mosi_data};
      bit_cnt <= bit_cnt + 1;
-    end
 
-    if (bit_cnt == 8 && sclk_posedge) begin
-        case(shift_reg[2:0]) 
+     if (bit_cnt == 4'd7) begin
+        case({shift_reg[1:0], mosi_data}) 
         3'b001: color_store <= 3'b001; // 0x01
         3'b010: color_store <= 3'b010;
         3'b011: color_store <= 3'b011;
@@ -38,7 +37,9 @@ always @(posedge clk) begin
         3'b101: color_store <= 3'b101;
         3'b110: color_store <= 3'b110;
         3'b111: color_store <= 3'b111;
+        default: color_store <= color_store;
         endcase
+    end
     end
 end
 endmodule
