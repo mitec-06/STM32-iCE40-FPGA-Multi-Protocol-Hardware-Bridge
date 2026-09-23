@@ -18,6 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stddef.h> 
+#include <string.h> 
+
+void UART_SendAndReadData(USART_TypeDef *USARTX, const uint8_t *data, size_t length);
+void FGPA_WriteRegister(uint8_t addr, uint8_t write);
+uint8_t FGPA_ReadRegister(uint8_t addr);
+
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -102,6 +110,25 @@ int main(void)
 
   /* USER CODE END 2 */
 
+  uint8_t addr = 0x02;
+
+  uint8_t write = 0x03;
+
+  uint8_t debug_a = 'A';
+  uint8_t debug_b = 'B';
+  uint8_t debug_c = 'C';
+
+ // UART_SendAndReadData(USART2, &debug_a, 1);
+
+  FGPA_WriteRegister(addr, write);
+
+//  UART_SendAndReadData(USART2, &debug_b, 1);
+
+  uint8_t test = FGPA_ReadRegister(addr);
+
+//  UART_SendAndReadData(USART2, &debug_c, 1);
+
+  UART_SendAndReadData(USART2, &test, 1);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -114,27 +141,28 @@ int main(void)
 }
 uint8_t FGPA_ReadRegister(uint8_t addr){
 
-    uint8_t tx_data = 0x00 | (addr & 0x7F);
+    uint8_t rx_data = 0x00 | (addr & 0x7F);
     uint8_t dummy_byte = 0x00;
-    uint8_t dummy_tx;
+    uint8_t dummy_rx;
     uint8_t byte_data; 
+    (void)dummy_rx;
 
     // Read Function for 
     LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_1);
     while (!LL_SPI_IsActiveFlag_TXE(SPI1)){}
-      LL_SPI_TransmitData8(SPI1, tx_data);
+      LL_SPI_TransmitData8(SPI1, rx_data);
    //  while (LL_SPI_IsActiveFlag_BSY(SPI1)){}
     
 
-    while (!LL_SPI_IsActiveFlag_RXE(SPI1)){}
-    dummy_tx = LL_SPI_ReceiveData8(SPI1);
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI1)){}
+    dummy_rx = LL_SPI_ReceiveData8(SPI1);
 
     while (!LL_SPI_IsActiveFlag_TXE(SPI1)){}
 
     LL_SPI_TransmitData8(SPI1, dummy_byte);
 
 
-    while (!LL_SPI_IsActiveFlag_RXE(SPI1)){}
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI1)){}
 
     byte_data = LL_SPI_ReceiveData8(SPI1);
 
@@ -146,18 +174,35 @@ uint8_t FGPA_ReadRegister(uint8_t addr){
 
 }
 
+void UART_SendAndReadData(USART_TypeDef *USARTX, const uint8_t *data, size_t length){
+
+  for (size_t i = 0; i < length; i++){
+   while (!LL_USART_IsActiveFlag_TXE(USARTX));
+   LL_USART_TransmitData8(USARTX, data[i]);
+   //while(!LL_USART_IsActiveFlag_RXNE(USART1)){}
+  //  LL_USART_ReceiveData8(USART1);
+  }
+ // while (!LL_USART_IsActiveFlag_TXE(USARTX));
+//  LL_USART_TransmitData8(USARTX, '\n');
+  while (!LL_USART_IsActiveFlag_TC(USARTX)){}
+  //while(!LL_USART_IsActiveFlag_RXNE(USART1)){}
+  //LL_USART_ReceiveData8(USART1);
+}
+
 
 void FGPA_WriteRegister(uint8_t addr, uint8_t write){
     uint8_t tx_data = 0x80 | (addr & 0x7F);
     uint8_t dummy_byte;
     uint8_t dummy_tx;
+    (void)dummy_tx;
+    (void) dummy_byte;
 
     LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_1);
     while (!LL_SPI_IsActiveFlag_TXE(SPI1)){}
 
     LL_SPI_TransmitData8(SPI1, tx_data);
 
-    while (!LL_SPI_IsActiveFlag_RXE(SPI1)){}
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI1)){}
 
     dummy_byte = LL_SPI_ReceiveData8(SPI1);
 
@@ -165,7 +210,7 @@ void FGPA_WriteRegister(uint8_t addr, uint8_t write){
 
     LL_SPI_TransmitData8(SPI1, write);
 
-    while (!LL_SPI_IsActiveFlag_RXE(SPI1)){}
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI1)){}
 
     dummy_tx = LL_SPI_ReceiveData8(SPI1);
 
